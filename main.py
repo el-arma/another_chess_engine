@@ -3,7 +3,11 @@
 
 
 from enum import Enum
+# for declaring CONST.
 import numpy as np
+# for chess board
+from typing import Tuple
+# for better type annotation
 
 # Set the print options in numpy so that the chess boards print nicely: 
 np.set_printoptions(edgeitems = 30, linewidth = 250, formatter = dict(float = lambda x: "%.3g" % x))
@@ -81,20 +85,12 @@ class Piece:
         self.piece_type = piece_type
         self.icon = icon
     
-    def move(self, field: str) -> None:
-        # something like this:
-        # 7a>6a (move fig. from field 7a to 6a) we could use ">" operator overload 
-        # alternatively or perhapes also use simplyfiy chess nontation:
-        # see: https://www.chess.com/terms/chess-notation
-
-        pass
-
     def possible_moves(self):
         pass
 
     def __repr__(self) -> str:
         # return garphical representation of a piece
-        
+               
         if self.color == Piece_Col.BLACK.value:
             
             prnt_me = f'{Alt_Color.GREEN.value} {self.icon} {Alt_Color.COLOR_OFF.value}'
@@ -155,8 +151,8 @@ class Player:
         return None
 
 class Spectator:
-    # perhapse?
     # definetly not a priority
+    # Add spectator who could watch the game(perhapse)
     pass
 
 class Game:
@@ -243,7 +239,40 @@ class Game:
         # place kings:
         self.board[7,4] = self.white_king
         self.board[0,4] = self.black_king
+
+    def field_conv(self, fld_address: str) -> Tuple[int, int]:
+        # convert field notation (e.g. 8a) to numpy co-ordinates
+
+        number, letter = fld_address
+
+        return (8 - int(number), ord(letter)-97)
+
+    def move(self, move_intr: str) -> None:
+        """something like this:
+        I. 7a>6a (move fig. from field 7a to 6a)
+        II. alternatively or perhapes also use simplyfiy chess nontation:
+            see: https://www.chess.com/terms/chess-notation"""
         
+        #----------------------------------------
+        # I. appraoch 7a>6a (move fig. from field 7a to 6a):
+
+        orgn_field_str, trgt_field_str = move_intr.split('>')
+        # split for two addresses
+
+        orgn_field = self.field_conv(orgn_field_str)
+        trgt_field = self.field_conv(trgt_field_str)
+
+        # do the move:
+        self.board[trgt_field] = self.board[orgn_field]
+        # copy the fig from beginig field to the target field 
+
+        # put original tile to empty place:
+        self.board[orgn_field] = self.white_tile
+
+        self.display_board()
+
+        return None
+
 
     def display_board(self) -> None:
 
@@ -267,3 +296,6 @@ if __name__ == "__main__":
 
     g1.display_board()
 
+    g1.move('8a>6d')
+
+    g1.move('8b>6c')
