@@ -1,5 +1,5 @@
 # CHESS ENGINE
-# v.1.0.1
+# v.1.0.2
 
 
 from enum import Enum
@@ -102,6 +102,7 @@ class Piece:
          
         return prnt_me
 
+# TODO:
 # remember about super() method:
 class Pawn(Piece):
     pass
@@ -166,6 +167,15 @@ class Game:
         self.white_tile = Board_tile(True)
         self.black_tile = Board_tile(False)
 
+
+        # Perhapse this part can be refactorized:
+        #################################################################################
+        # in a similar fashion: (if (orgn_field_tup[0] + orgn_field_tup[1]) % 2 == 0:)
+        # or:
+        # ??? grid = np.empty((8, 8), dtype='<U1') ???
+        # ??? grid[:] = np.where((np.indices(grid.shape).sum(axis=0) % 2 == 0), 'W', 'B') ???
+
+
         # start with all tiles white
         self.board = np.full((8, 8), self.white_tile, dtype = 'O')
 
@@ -176,6 +186,11 @@ class Game:
         # add black tiles p.2
         self.board[1::2, ::2] = self.black_tile
         # Setting alternate rows starting from the second row with alternate columns to 1
+
+
+        #################################################################################
+
+
 
         # PLACE PIECES ON THE BOARD:
         # (require furhter refactorization)
@@ -254,20 +269,39 @@ class Game:
             see: https://www.chess.com/terms/chess-notation"""
         
         #----------------------------------------
-        # I. appraoch 7a>6a (move fig. from field 7a to 6a):
+        # I. approach 7a>6a notation (move fig. from field 7a to 6a):
+
+        # TODO:
+        # check if move istruction is valid (is there any figure on the origin field)
+        # check posible moves (how to cross check it with Piece Class?)
+        # check if move will create a check (e.g. will expose the king from some angle)
+
+
+        # TODO:
+        # II. approach 'N3d2' notation (based on standard chess notation but simplify)
+        # how to valide the moves instruction to include both types of notatnions?
+
 
         orgn_field_str, trgt_field_str = move_intr.split('>')
         # split for two addresses
 
-        orgn_field = self.field_conv(orgn_field_str)
-        trgt_field = self.field_conv(trgt_field_str)
+        orgn_field_tup = self.field_conv(orgn_field_str)
+        trgt_field_tup = self.field_conv(trgt_field_str)
 
         # do the move:
-        self.board[trgt_field] = self.board[orgn_field]
+        self.board[trgt_field_tup] = self.board[orgn_field_tup]
         # copy the fig from beginig field to the target field 
 
         # put original tile to empty place:
-        self.board[orgn_field] = self.white_tile
+        if (orgn_field_tup[0] + orgn_field_tup[1]) % 2 == 0:
+        # determin whether tile should be black of white
+
+            self.board[orgn_field_tup] = self.white_tile
+            # set back original tile as white
+
+        else:
+            self.board[orgn_field_tup] = self.black_tile
+            # set back original tile as black
 
         self.display_board()
 
@@ -296,6 +330,7 @@ if __name__ == "__main__":
 
     g1.display_board()
 
-    g1.move('8a>6d')
+    g1.move('2d>3d')
+    g1.move('3d>4d')
+    g1.move('4d>5d')
 
-    g1.move('8b>6c')
