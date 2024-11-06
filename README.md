@@ -1,41 +1,54 @@
-THIS REPO IS CREATED IN EDUCATIONAL PURPOSES TO PRACTICE PYTHON, GIT & GITHUB AND WORK IN GROUP
+# Chess Engine Project
 
-Main object: create a simple chess enigne with the use of OOP (create chess pieces, board, control the game flow etc.)
+## Overview
+This repository is created for educational purposes to practice **Python**, **Git**, **GitHub**, and collaborative development of project with many team members from diferent environments.
 
-Requirements (so far):
+### Main Objectives:
+The goal of this project is to **create a simple chess engine** using **Object-Oriented Programming (OOP)** principles. This includes:
+- Create chess pieces as objects
+- Implement the chess board as object
+- Managing game flow and the chess rules
 
--Python 3.12+
+## Requirements (so far):
 
--Numpy 2.1.2
+- **Python** 3.12+
+- **Numpy** 2.1.2
 
-Code guide lines (let's pretendet that is professional):
+## Code Guidelines:
 
--ONLY ENGLISH!!!
+To maintain professionalism and consistency, please follow these guidelines:
 
--Use Type Annotation
+- **Language**: Use **only English** for variable names, comments, and documentation.
+- **Type Annotations**: Always use type annotations to improve code readability and maintainability.
+- **Constants**: Use the `Enum` class to declare constants for better clarity and structure.
+- **Version Control**: Use **Git** and **GitHub** for version control and collaboration.
 
--Use Enum do delcare constatns
+## Future Enhancements:
 
--Use git & github (Duh!)
+Once the core chess engine is completed, we can explore adding the following features:
 
-Once main part is ready we can try:
+1. **Networking**:
+   - Add connection support using Python's `socket` library.
+   - Implement **P2P** connectivity for multiplayer games.
+   
+2. **Command-Line Interface (CLI)**:
+   - Create a **CLI implementation** for the chess game, potentially supporting **SSH** to play remotely.
 
--add connection via python socket lib
+3. **Deployment**:
+   - Host the chess engine on **AWS** for public access.
+   - Self-host the engine on a **Raspberry Pi** for local or personal use.
 
--connect P2P
+4. **Logging**:
+   - Add a logging mechanism to track user actions, game states, and errors.
 
--create CLI implementation (chess via SSH? ;>)
+5. **Frontend**:
+   - Implement a **JavaScript frontend** for a web-based interface to play the game.
 
--host in on AWS
+6. **Customization**:
+   - Allow users to add their own **custom chess skins**.
 
--self host (Raspberry Pi)
+7. **Video Streaming**:
+   - Implement **video streaming** using the **UDP protocol** for live game broadcasts.
 
--add loggin mechanism
-
--add JS front
-
--add yor own chess skins
-
--add Video steam via UDP protocl
-
--implement AI (try replicate somehing like Deep Blue - unsupervised learning)
+8. **AI Development**:
+   - Implement an AI component, potentially attempting to replicate something akin to **Deep Blue** using **unsupervised learning** techniques.
