@@ -103,9 +103,28 @@ class Piece:
         return prnt_me
 
 # TODO:
-# remember about super() method:
+# later when we have all proper methods
+# remember about super() method
+# establish universal unit movement on the board no matter of payer perspective
+# (e.g. if black pawn can only go down (+1 row on the numpy array), white on the other hand can go only upwad -1 )
+
 class Pawn(Piece):
-    pass
+    # PAWN MOVE SCHEME:
+    # if board row == 1 or row == 6 you can move 1 or 2 field forward
+    # otherwise only one step ahead
+    # (En passant to be implement later)
+
+    def check_move(self, orgn_field_tup: Tuple[int, int], 
+                       trgt_field_tup: Tuple[int, int], board_snapshot: np.array) -> bool:
+        
+        """check if a given pawn standing on the orgn_field_tup can move to the trgt_field_tup
+            (both: orgn_field_tup trgt_field_tup are numpy array co-ordinates e.g. (0, 0 ))
+            board_snapshot provide simplify information what is the situation on the board 
+            (later optionaly check all possible moves for that piece)"""
+        
+        is_possible = None
+
+        return is_possible
 
 class Knight(Piece):
     pass
@@ -157,6 +176,8 @@ class Spectator:
     pass
 
 class Game:
+# Should we extract new class Board from from Game class?
+
 
     def __init__(self) -> None:
         
@@ -166,6 +187,10 @@ class Game:
         # CREATE EMPTY CHESS BOARD:
         self.white_tile = Board_tile(True)
         self.black_tile = Board_tile(False)
+
+        # TODO:
+        # should probably define board atribute 'field' so we could call something like 'board.8a'
+        # then every pawn could be unique (palced on a given field which could be changed)
 
 
         # Perhapse this part can be refactorized:
@@ -256,25 +281,20 @@ class Game:
         self.board[0,4] = self.black_king
 
     def field_conv(self, fld_address: str) -> Tuple[int, int]:
-        # convert field notation (e.g. 8a) to numpy co-ordinates
+        """convert field notation (e.g. 8a) to numpy co-ordinates (0, 0)"""
 
         number, letter = fld_address
 
-        return (8 - int(number), ord(letter)-97)
+        return (8 - int(number), ord(letter) - 97)
 
     def move(self, move_intr: str) -> None:
-        """something like this:
+        """If the move is vaild moves a given piece on the board
+        
+        something like this:
         I. 7a>6a (move fig. from field 7a to 6a)
         II. alternatively or perhapes also use simplyfiy chess nontation:
             see: https://www.chess.com/terms/chess-notation"""
         
-        #----------------------------------------
-        # I. approach 7a>6a notation (move fig. from field 7a to 6a):
-
-        # TODO:
-        # check if move istruction is valid (is there any figure on the origin field)
-        # check posible moves (how to cross check it with Piece Class?)
-        # check if move will create a check (e.g. will expose the king from some angle)
 
 
         # TODO:
@@ -282,11 +302,65 @@ class Game:
         # how to valide the moves instruction to include both types of notatnions?
 
 
+
+
+        #----------------------------------------
+        # I. approach 7a>6a notation (move fig. from field 7a to 6a):
+
+        # TODO:
+        # check if move istruction is valid (is there any figure on the origin field)
+        # check posible moves (how to cross check it with Piece Class?)
+        # check if move will create a check on our side (e.g. will expose the king from some angle)
+
+
+        
+        # CHECK what kind of piece object is (is it a tile or rather doas it have 'piece_type' attribute (if not throw an error)
+        # CHECK POSSIBLE MOVE 
+        # CHECK if given move_inst is in POSSSIBLE MOVES
+        # Externalize all this checks form this method (do not do it here)
+        # Use method of a given piece which is standing on that field what possbile moves it have
+
+
+
+
+
+
+
         orgn_field_str, trgt_field_str = move_intr.split('>')
         # split for two addresses
 
         orgn_field_tup = self.field_conv(orgn_field_str)
+        # convert to numpy address tuples
+
         trgt_field_tup = self.field_conv(trgt_field_str)
+        # convert to numpy address tuples
+
+        ####################################################
+        # piece_to_move = self.board[orgn_field_tup]
+        ####################################################
+
+        if isinstance(self.board[orgn_field_tup], Piece):
+            # check if what you have pointed is not an empty field (belongs to the Piece class)
+            print("Do the code")
+        else:
+            raise Exception("You have pointed an empty field as a start!")
+            # player has pointed an empty field as a starting point of a move
+
+        
+        
+
+
+        # TODO:
+        # check if the move is in a range of a possible moves:
+        # piece_to_move.check_move(orgn_field_tup, trgt_field_tup)
+
+
+
+
+
+
+
+
 
         # do the move:
         self.board[trgt_field_tup] = self.board[orgn_field_tup]
@@ -297,18 +371,19 @@ class Game:
         # determin whether tile should be black of white
 
             self.board[orgn_field_tup] = self.white_tile
-            # set back original tile as white
+            # replace a given piece back with the original tile (white)
 
         else:
             self.board[orgn_field_tup] = self.black_tile
-            # set back original tile as black
+            # replace a given piece back with the original tile (black)
 
         self.display_board()
 
         return None
 
 
-    def display_board(self) -> None:
+    def display_board(self, reverse: bool = False) -> None:
+        # reverse to be impletemnte later (to reverse board for the second player)
 
         print('\n' + ' ' * 6 + '-' * 30)
 
@@ -320,7 +395,10 @@ class Game:
 
         return None
 
-
+    def board_snapshot(self):
+        # generate simplify version of a board as a np.array 
+        # but only with chars represeinting pieces not actual obejcts.
+        pass
 
 
 #######################################################################################################################
