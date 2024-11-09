@@ -31,12 +31,12 @@ class Piece_Icon(Enum):
     BLACK_PAWN = '♟'
 
 class Piece_Type(Enum):
-    KING = 'king'
-    QUEEN = 'queen'
-    TOWER = 'tower'
-    BISHOP = 'bishop'
-    KNIGHT = 'knight'
-    PAWN = 'pawn'
+    KING = 'K'
+    QUEEN = 'Q'
+    TOWER = 'T'
+    BISHOP = 'B'
+    KNIGHT = 'N'
+    PAWN = 'i'
 
 class Piece_Col(Enum):
     BLACK = 'B'
@@ -79,11 +79,26 @@ class Board_tile:
 # probably to be moved to a separate file
 
 class Piece:
-    def __init__(self, color: Piece_Col, piece_type: Piece_Type, icon: Piece_Icon) -> None:
+
+    all_icons_dict = {(Piece_Col.BLACK.value, Piece_Type.KING.value): Piece_Icon.BLACK_KING.value,
+                    (Piece_Col.BLACK.value, Piece_Type.QUEEN.value): Piece_Icon.BLACK_QUEEN.value,
+                    (Piece_Col.BLACK.value, Piece_Type.TOWER.value): Piece_Icon.BLACK_TOWER.value,
+                    (Piece_Col.BLACK.value, Piece_Type.BISHOP.value): Piece_Icon.BLACK_BISHOP.value,
+                    (Piece_Col.BLACK.value, Piece_Type.KNIGHT.value): Piece_Icon.BLACK_KNIGHT.value,
+                    (Piece_Col.BLACK.value, Piece_Type.PAWN.value): Piece_Icon.BLACK_PAWN.value,
+                    (Piece_Col.WHITE.value, Piece_Type.KING.value): Piece_Icon.WHITE_KING.value,
+                    (Piece_Col.WHITE.value, Piece_Type.QUEEN.value): Piece_Icon.WHITE_QUEEN.value,
+                    (Piece_Col.WHITE.value, Piece_Type.TOWER.value): Piece_Icon.WHITE_TOWER.value,
+                    (Piece_Col.WHITE.value, Piece_Type.BISHOP.value): Piece_Icon.WHITE_BISHOP.value,
+                    (Piece_Col.WHITE.value, Piece_Type.KNIGHT.value): Piece_Icon.WHITE_KNIGHT.value,
+                    (Piece_Col.WHITE.value, Piece_Type.PAWN.value): Piece_Icon.WHITE_PAWN.value}
+
+
+    def __init__(self, color: Piece_Col, field_tup: tuple) -> None:
         
         self.color = color
-        self.piece_type = piece_type
-        self.icon = icon
+
+        self.field_tup = field_tup
     
     def possible_moves(self):
         pass
@@ -109,10 +124,20 @@ class Piece:
 # (e.g. if black pawn can only go down (+1 row on the numpy array), white on the other hand can go only upwad -1 )
 
 class Pawn(Piece):
+
     # PAWN MOVE SCHEME:
     # if board row == 1 or row == 6 you can move 1 or 2 field forward
     # otherwise only one step ahead
     # (En passant to be implement later)
+
+    def __init__(self, color: Piece_Col, field_tup: tuple):
+
+        super().__init__(color, field_tup)
+        
+        self.piece_type = Piece_Type.PAWN.value
+        self.icon = self.all_icons_dict[(self.color, self.piece_type)]
+
+
 
     def check_move(self, orgn_field_tup: Tuple[int, int], 
                        trgt_field_tup: Tuple[int, int]) -> bool:
@@ -127,22 +152,47 @@ class Pawn(Piece):
         return is_possible
 
 class Knight(Piece):
-    pass
+
+    def __init__(self, color: Piece_Col, field_tup: tuple):
+
+        super().__init__(color, field_tup)
+        
+        self.piece_type = Piece_Type.KNIGHT.value
+        self.icon = self.all_icons_dict[(self.color, self.piece_type)]
 
 class Bishop(Piece):
-    pass
+    def __init__(self, color: Piece_Col, field_tup: tuple):
+
+        super().__init__(color, field_tup)
+        
+        self.piece_type = Piece_Type.BISHOP.value
+        self.icon = self.all_icons_dict[(self.color, self.piece_type)]
 
 class Tower(Piece):
-    pass
+    def __init__(self, color: Piece_Col, field_tup: tuple):
+
+        super().__init__(color, field_tup)
+        
+        self.piece_type = Piece_Type.TOWER.value
+        self.icon = self.all_icons_dict[(self.color, self.piece_type)]
 
 class Queen(Piece):
     # inherents moves from Bishop and Tower(multiple inherentance)
-    pass
+    def __init__(self, color: Piece_Col, field_tup: tuple):
+
+        super().__init__(color, field_tup)
+        
+        self.piece_type = Piece_Type.QUEEN.value
+        self.icon = self.all_icons_dict[(self.color, self.piece_type)]
 
 class King(Queen):
     # copy moves from Queen but limit it by one
-    pass
+    def __init__(self, color: Piece_Col, field_tup: tuple):
 
+        super().__init__(color, field_tup)
+        
+        self.piece_type = Piece_Type.KING.value
+        self.icon = self.all_icons_dict[(self.color, self.piece_type)]
 
 ################################################################################################
 # GAME:
@@ -216,71 +266,48 @@ class Game:
 
 
         #################################################################################
-
-
-
         # PLACE PIECES ON THE BOARD:
-        # (require furhter refactorization)
 
-        self.white_pawn = Pawn(color = Piece_Col.WHITE.value, piece_type = Piece_Type.PAWN.value, 
-                               icon = Piece_Icon.WHITE_PAWN.value)
-        self.black_pawn = Pawn(color = Piece_Col.BLACK.value, piece_type = Piece_Type.PAWN.value, 
-                               icon = Piece_Icon.BLACK_PAWN.value)
-        
-        self.white_tower =  Tower(color = Piece_Col.WHITE.value, piece_type = Piece_Type.TOWER.value, 
-                                  icon = Piece_Icon.WHITE_TOWER.value)
-        self.black_tower =  Tower(color = Piece_Col.BLACK.value, piece_type = Piece_Type.TOWER.value, 
-                                  icon = Piece_Icon.BLACK_TOWER.value)
-        
-        self.white_knight = Knight(color = Piece_Col.WHITE.value, piece_type = Piece_Type.KNIGHT.value, 
-                                   icon = Piece_Icon.WHITE_KNIGHT.value)
-        self.black_knight = Knight(color = Piece_Col.BLACK.value, piece_type = Piece_Type.KNIGHT.value, 
-                                   icon = Piece_Icon.BLACK_KNIGHT.value)
+        for i in range(64):
+            
+            if i < 32:
+                chosen_color = Piece_Col.BLACK.value
+            else:    
+                chosen_color = Piece_Col.WHITE.value
+    
 
-        self.white_bishop = Bishop(color = Piece_Col.WHITE.value, piece_type = Piece_Type.BISHOP.value, 
-                                   icon = Piece_Icon.WHITE_BISHOP.value)
-        self.black_bishop = Bishop(color = Piece_Col.BLACK.value, piece_type = Piece_Type.BISHOP.value, 
-                                   icon = Piece_Icon.BLACK_BISHOP.value)
+            x = i // 8
+            y = i % 8
+            cord_tup = (x, y)
 
-        self.white_queen = Queen(color = Piece_Col.WHITE.value, piece_type = Piece_Type.QUEEN.value, 
-                                 icon = Piece_Icon.WHITE_QUEEN.value)
-        self.black_queen = Queen(color = Piece_Col.BLACK.value, piece_type = Piece_Type.QUEEN.value, 
-                                 icon = Piece_Icon.BLACK_QUEEN.value)
+            # place pawns:
+            if i in range(8, 16) or i in range(48, 56):
+                self.board[cord_tup] = Pawn(color = chosen_color, field_tup = cord_tup)
+            
+            # place towers:
+            if i in (0, 7, 56, 63):
+                self.board[cord_tup] = Tower(color = chosen_color, field_tup = cord_tup)
+            
+            # place knights:
+            if i in (1, 6, 57, 62):
+                self.board[cord_tup] = Knight(color = chosen_color, field_tup = cord_tup)
+            
+            # place bishops:
+            if i in (2, 5, 58, 61):
+                self.board[cord_tup] = Bishop(color = chosen_color, field_tup = cord_tup)
+            
+            # place queens:
+            if i in (3, 59):
+                self.board[cord_tup] = Queen(color = chosen_color, field_tup = cord_tup)
+            
+            # place kings:    
+            if i in (4, 60):
+                self.board[cord_tup] = King(color = chosen_color, field_tup = cord_tup)
 
-        self.white_king = King(color = Piece_Col.WHITE.value, piece_type = Piece_Type.KING.value, 
-                               icon = Piece_Icon.WHITE_KING.value)
-        self.black_king = King(color = Piece_Col.BLACK.value, piece_type = Piece_Type.KING.value, 
-                               icon = Piece_Icon.BLACK_KING.value)
 
-        # place pawns:
-        self.board[1,:] = self.black_pawn
-        self.board[6,:] = self.white_pawn
-        
-        # place towers:
-        self.board[0,7] = self.black_tower
-        self.board[0,0] = self.black_tower
-        self.board[7,0] = self.white_tower
-        self.board[7,7] = self.white_tower
+#################################################################################
 
-        # place knights:
-        self.board[0,1] = self.black_knight
-        self.board[0,6] = self.black_knight
-        self.board[7,1] = self.white_knight
-        self.board[7,6] = self.white_knight
-        
-        # place bishops:
-        self.board[0,2] = self.black_bishop
-        self.board[0,5] = self.black_bishop
-        self.board[7,2] = self.white_bishop
-        self.board[7,5] = self.white_bishop
 
-        # place queens:
-        self.board[7,3] = self.white_queen
-        self.board[0,3] = self.black_queen
-        
-        # place kings:
-        self.board[7,4] = self.white_king
-        self.board[0,4] = self.black_king
 
     def field_conv(self, fld_address: str) -> Tuple[int, int]:
         """convert field notation (e.g. 8a) to numpy co-ordinates (0, 0)"""
@@ -414,3 +441,5 @@ if __name__ == "__main__":
     g1.move('3d>4d')
     g1.move('4d>5d')
 
+    print(id(g1.board[0,1]))
+    print(id(g1.board[0,7]))
