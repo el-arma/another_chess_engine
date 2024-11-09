@@ -115,7 +115,7 @@ class Pawn(Piece):
     # (En passant to be implement later)
 
     def check_move(self, orgn_field_tup: Tuple[int, int], 
-                       trgt_field_tup: Tuple[int, int], board_snapshot: np.array) -> bool:
+                       trgt_field_tup: Tuple[int, int]) -> bool:
         
         """check if a given pawn standing on the orgn_field_tup can move to the trgt_field_tup
             (both: orgn_field_tup trgt_field_tup are numpy array co-ordinates e.g. (0, 0 ))
@@ -136,9 +136,11 @@ class Tower(Piece):
     pass
 
 class Queen(Piece):
+    # inherents moves from Bishop and Tower(multiple inherentance)
     pass
 
 class King(Queen):
+    # copy moves from Queen but limit it by one
     pass
 
 
