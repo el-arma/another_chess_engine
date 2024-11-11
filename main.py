@@ -1,5 +1,5 @@
 # CHESS ENGINE
-# v.1.0.2
+# v.1.0.3
 
 
 from enum import Enum
@@ -76,10 +76,11 @@ class Board_tile:
 
 ################################################################################################
 # CHESS PIECES:
-# probably to be moved to a separate file
+# TODO: extract all pieces and related classes and save them as a separate module
 
 class Piece:
 
+    # dictionary of all possible pieces KEY is a tuple (piece color, piece type):
     all_icons_dict = {(Piece_Col.BLACK.value, Piece_Type.KING.value): Piece_Icon.BLACK_KING.value,
                     (Piece_Col.BLACK.value, Piece_Type.QUEEN.value): Piece_Icon.BLACK_QUEEN.value,
                     (Piece_Col.BLACK.value, Piece_Type.TOWER.value): Piece_Icon.BLACK_TOWER.value,
@@ -93,7 +94,7 @@ class Piece:
                     (Piece_Col.WHITE.value, Piece_Type.KNIGHT.value): Piece_Icon.WHITE_KNIGHT.value,
                     (Piece_Col.WHITE.value, Piece_Type.PAWN.value): Piece_Icon.WHITE_PAWN.value}
 
-
+    # when created piece only requires color and its location
     def __init__(self, color: Piece_Col, field_tup: tuple) -> None:
         
         self.color = color
@@ -117,15 +118,10 @@ class Piece:
          
         return prnt_me
 
-# TODO:
-# later when we have all proper methods
-# remember about super() method
-# establish universal unit movement on the board no matter of payer perspective
-# (e.g. if black pawn can only go down (+1 row on the numpy array), white on the other hand can go only upwad -1 )
-
 class Pawn(Piece):
 
     # PAWN MOVE SCHEME:
+    # if black pawn can only go down (+1 row on the numpy array), white on the other hand can go only upwad -1 )
     # if board row == 1 or row == 6 you can move 1 or 2 field forward
     # otherwise only one step ahead
     # (En passant to be implement later)
@@ -135,7 +131,10 @@ class Pawn(Piece):
         super().__init__(color, field_tup)
         
         self.piece_type = Piece_Type.PAWN.value
+        # assign color to the pawn
+
         self.icon = self.all_icons_dict[(self.color, self.piece_type)]
+        # asign icon to the pawn base on the color
 
 
 
@@ -177,7 +176,7 @@ class Tower(Piece):
         self.icon = self.all_icons_dict[(self.color, self.piece_type)]
 
 class Queen(Piece):
-    # inherents moves from Bishop and Tower(multiple inherentance)
+    # inherents moves from Bishop and Tower(good to practice multiple inherentance)
     def __init__(self, color: Piece_Col, field_tup: tuple):
 
         super().__init__(color, field_tup)
@@ -240,9 +239,7 @@ class Game:
         self.white_tile = Board_tile(True)
         self.black_tile = Board_tile(False)
 
-        # TODO:
-        # should probably define board atribute 'field' so we could call something like 'board.8a'
-        # then every pawn could be unique (palced on a given field which could be changed)
+
 
 
         # Perhapse this part can be refactorized:
@@ -251,7 +248,7 @@ class Game:
         # or:
         # ??? grid = np.empty((8, 8), dtype='<U1') ???
         # ??? grid[:] = np.where((np.indices(grid.shape).sum(axis=0) % 2 == 0), 'W', 'B') ???
-
+        #################################################################################
 
         # start with all tiles white
         self.board = np.full((8, 8), self.white_tile, dtype = 'O')
@@ -265,20 +262,27 @@ class Game:
         # Setting alternate rows starting from the second row with alternate columns to 1
 
 
-        #################################################################################
+        ######################################################################################################################################
         # PLACE PIECES ON THE BOARD:
 
+        # for each field:
         for i in range(64):
             
             if i < 32:
                 chosen_color = Piece_Col.BLACK.value
+                # start with black pieces (from the top of the board)
             else:    
                 chosen_color = Piece_Col.WHITE.value
-    
+                # white for all other
 
             x = i // 8
+            # floor division converts counter to a specific row number
+            
             y = i % 8
+            # modulo converts counter to a specific column number
+
             cord_tup = (x, y)
+            # return proper numpy coordinates
 
             # place pawns:
             if i in range(8, 16) or i in range(48, 56):
@@ -305,12 +309,12 @@ class Game:
                 self.board[cord_tup] = King(color = chosen_color, field_tup = cord_tup)
 
 
-#################################################################################
+######################################################################################################################################
 
 
 
     def field_conv(self, fld_address: str) -> Tuple[int, int]:
-        """convert field notation (e.g. 8a) to numpy co-ordinates (0, 0)"""
+        """convert field notation given by a player (e.g. 8a) to numpy co-ordinates (0, 0)"""
 
         number, letter = fld_address
 
@@ -318,36 +322,17 @@ class Game:
 
     def move(self, move_intr: str) -> None:
         """If the move is vaild moves a given piece on the board
-        
-        something like this:
+
+        Two possible approaches:
+
         I. 7a>6a (move fig. from field 7a to 6a)
-        II. alternatively or perhapes also use simplyfiy chess nontation:
+        II. alternatively or perhapes additionally use simplyfiy chess nontation 'N3d2':
             see: https://www.chess.com/terms/chess-notation"""
         
-
-
         # TODO:
-        # II. approach 'N3d2' notation (based on standard chess notation but simplify)
-        # how to valide the moves instruction to include both types of notatnions?
-
-
-
-
         #----------------------------------------
-        # I. approach 7a>6a notation (move fig. from field 7a to 6a):
+        # I. approach:
 
-        # TODO:
-        # check if move istruction is valid (is there any figure on the origin field)
-        # check posible moves (how to cross check it with Piece Class?)
-        # check if move will create a check on our side (e.g. will expose the king from some angle)
-
-
-        
-        # CHECK what kind of piece object is (is it a tile or rather doas it have 'piece_type' attribute (if not throw an error)
-        # CHECK POSSIBLE MOVE 
-        # CHECK if given move_inst is in POSSSIBLE MOVES
-        # Externalize all this checks form this method (do not do it here)
-        # Use method of a given piece which is standing on that field what possbile moves it have
 
 
 
@@ -357,16 +342,13 @@ class Game:
 
         orgn_field_str, trgt_field_str = move_intr.split('>')
         # split for two addresses
+        # pehapse overload of '__gt__' dunder method could be applied (later)
 
         orgn_field_tup = self.field_conv(orgn_field_str)
         # convert to numpy address tuples
 
         trgt_field_tup = self.field_conv(trgt_field_str)
         # convert to numpy address tuples
-
-        ####################################################
-        # piece_to_move = self.board[orgn_field_tup]
-        ####################################################
 
         if isinstance(self.board[orgn_field_tup], Piece):
             # check if what you have pointed is not an empty field (belongs to the Piece class)
@@ -375,13 +357,8 @@ class Game:
             raise Exception("You have pointed an empty field as a start!")
             # player has pointed an empty field as a starting point of a move
 
-        
-        
 
 
-        # TODO:
-        # check if the move is in a range of a possible moves:
-        # piece_to_move.check_move(orgn_field_tup, trgt_field_tup)
 
 
 
