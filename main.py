@@ -80,6 +80,17 @@ class Board_tile:
 
 class Piece:
 
+    # tuple/vector move notation for pieces:
+    
+    # (-1,-1)   (-1,0)    (-1,1) 
+    #              ^
+    #              |
+    # (-1,0)  <—  0,0   —> (0,1)
+    #              |
+    #              ⌄
+    # (1,-1)     (1,0)     (1,1) 
+
+
     # dictionary of all possible pieces KEY is a tuple (piece color, piece type):
     all_icons_dict = {(Piece_Col.BLACK.value, Piece_Type.KING.value): Piece_Icon.BLACK_KING.value,
                     (Piece_Col.BLACK.value, Piece_Type.QUEEN.value): Piece_Icon.BLACK_QUEEN.value,
@@ -95,7 +106,7 @@ class Piece:
                     (Piece_Col.WHITE.value, Piece_Type.PAWN.value): Piece_Icon.WHITE_PAWN.value}
 
     # when created piece only requires color and its location
-    def __init__(self, color: Piece_Col, field_tup: tuple) -> None:
+    def __init__(self, color: Piece_Col, field_tup: Tuple[int, int]) -> None:
         
         self.color = color
 
@@ -126,7 +137,7 @@ class Pawn(Piece):
     # otherwise only one step ahead
     # (En passant to be implement later)
 
-    def __init__(self, color: Piece_Col, field_tup: tuple):
+    def __init__(self, color: Piece_Col, field_tup: Tuple[int, int]):
 
         super().__init__(color, field_tup)
         
@@ -168,12 +179,42 @@ class Bishop(Piece):
         self.icon = self.all_icons_dict[(self.color, self.piece_type)]
 
 class Tower(Piece):
-    def __init__(self, color: Piece_Col, field_tup: tuple):
+    def __init__(self, color: Piece_Col, field_tup: Tuple[int, int]):
 
         super().__init__(color, field_tup)
         
-        self.piece_type = Piece_Type.TOWER.value
-        self.icon = self.all_icons_dict[(self.color, self.piece_type)]
+        self.piece_type: Piece_Col = Piece_Type.TOWER.value
+        self.icon: Piece_Icon = self.all_icons_dict[(self.color, self.piece_type)]
+
+    #TODO: IN PROGRESS
+    def check_move_rng(self, board_snap: np.array) -> list:
+        """Check all theoretically possible moves for this piece - from its starting filed,
+        like it would be on an empty board"""
+        
+        print(self.field_tup)
+
+        moves_rng: list = []
+
+        row_int: int = self.field_tup[0]
+        col_int: int = self.field_tup[1]
+        
+
+        # vertical:
+        for j in range(8):
+            if j != row_int:
+                moves_rng.append((j, col_int))
+
+        # horizontal:
+        for j in range(8):
+            if j != col_int:
+                moves_rng.append((row_int, j))
+
+        
+        print(moves_rng)
+        print()
+        print(board_snap)
+        return None
+
 
 class Queen(Piece):
     # inherents moves from Bishop and Tower(good to practice multiple inherentance)
@@ -336,10 +377,6 @@ class Game:
 
 
 
-
-
-
-
         orgn_field_str, trgt_field_str = move_intr.split('>')
         # split for two addresses
         # pehapse overload of '__gt__' dunder method could be applied (later)
@@ -357,21 +394,19 @@ class Game:
             raise Exception("You have pointed an empty field as a start!")
             # player has pointed an empty field as a starting point of a move
 
+        board_info = self.board_snapshot()
+        # get board info 
 
-
-
-
-
-
-
-
-
-
+        self.board[orgn_field_tup].check_move_rng(board_info)
+        # pass it to the check_move_rng() method
 
         # do the move:
         self.board[trgt_field_tup] = self.board[orgn_field_tup]
         # copy the fig from beginig field to the target field 
 
+        self.board[trgt_field_tup].field_tup = trgt_field_tup
+        # update the address of the moved piece
+        
         # put original tile to empty place:
         if (orgn_field_tup[0] + orgn_field_tup[1]) % 2 == 0:
         # determin whether tile should be black of white
@@ -401,22 +436,42 @@ class Game:
 
         return None
 
-    def board_snapshot(self):
-        # generate simplify version of a board as a np.array 
-        # but only with chars represeinting pieces not actual obejcts.
-        pass
+    def board_snapshot(self) -> np.array:
+        """generate simplify version of a board as a np.array 
+        but it only contains chars represeinting pieces not actual obejcts"""
+
+        # create empty numpy array (data type Unicode with 1 sign)
+        brd_snap = np.full((8,8), '', dtype = 'U2')
+        
+        for i in range(64):
+        # for every field
+            
+            x = i // 8
+            # floor division converts counter to a specific row number
+
+            y = i % 8
+            # modulo converts counter to a specific column number
+            
+            cord_tup = (x, y)
+            # return proper numpy coordinates
+
+            current_piece = self.board[cord_tup]
+            # get piece from a current field
+
+            if isinstance(current_piece, Piece):
+                # if given obj is a piece
+
+                brd_snap[cord_tup] = f'{current_piece.piece_type}{current_piece.color}'
+                # get its 'piece_type' and color attribute
+
+        return brd_snap
 
 
 #######################################################################################################################
 if __name__ == "__main__":
 
     g1 = Game()
-
     g1.display_board()
 
-    g1.move('2d>3d')
-    g1.move('3d>4d')
-    g1.move('4d>5d')
-
-    print(id(g1.board[0,1]))
-    print(id(g1.board[0,7]))
+    g1.move('1a>5d')
+    g1.move('5d>6d')
