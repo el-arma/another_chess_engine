@@ -187,32 +187,89 @@ class Tower(Piece):
         self.icon: Piece_Icon = self.all_icons_dict[(self.color, self.piece_type)]
 
     #TODO: IN PROGRESS
-    def check_move_rng(self, board_snap: np.array) -> list:
-        """Check all theoretically possible moves for this piece - from its starting filed,
-        like it would be on an empty board"""
+    def validate_move(self, board_snap: np.array, target_field: Tuple[int, int]) -> list:
+        """Check if a given move is possbile:
+            -is king in in-check state (this rather be in a game class?)
+            -is it in a range of a given piece
+            -will it create a in-check state (this rather be in a game class?)
+        """
         
-        print(self.field_tup)
+        # print(f'{board_snap}')
+        # print()
+        # print(f'{target_field=}')
+        # print()
+        # print(f'{self.field_tup=}')
 
-        moves_rng: list = []
+        trg_fld_col: int = target_field[1]
+        org_fld_col: int = self.field_tup[1]
 
-        row_int: int = self.field_tup[0]
-        col_int: int = self.field_tup[1]
+        trg_fld_row: int = target_field[0]
+        org_fld_row: int = self.field_tup[0]
+
+
+        if org_fld_col == trg_fld_col:
+            # target field is in the same column (vertical)
+
+            print(board_snap)
+            tuple_ = (org_fld_row, trg_fld_row)  
+            my_sorted_tup = tuple(sorted(tuple_))  
+            print('Sorted Tuple :', my_sorted_tup)  
+
+
+            print(board_snap[my_sorted_tup[0] : my_sorted_tup[1], 0])
+
+            print("HERE!!!")
+            # move_vector = target_field[0] - self.field_tup[0]
+
+            # print(board_snap[:  target_field[0] : self.field_tup[0]])
+
+        elif org_fld_row == trg_fld_row:
+            print("Ahoy!")
+            # target field is in the same row (horizontal)
+
+            # print(target_field[1], self.field_tup[1])
+            # print("HERE: ", target_field[1] - self.field_tup[1])
+        else:
+            raise Exception('Wrong field coordinates try again.')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        # print(self.field_tup)
+
+        # moves_rng: list = []
+
+        # row_int: int = self.field_tup[0]
+        # col_int: int = self.field_tup[1]
         
 
-        # vertical:
-        for j in range(8):
-            if j != row_int:
-                moves_rng.append((j, col_int))
+        # # vertical:
+        # for j in range(8):
+        #     if j != row_int:
+        #         moves_rng.append((j, col_int))
 
-        # horizontal:
-        for j in range(8):
-            if j != col_int:
-                moves_rng.append((row_int, j))
+        # # horizontal:
+        # for j in range(8):
+        #     if j != col_int:
+        #         moves_rng.append((row_int, j))
 
         
-        print(moves_rng)
-        print()
-        print(board_snap)
+        # print(moves_rng)
+        # print()
+        # print(board_snap)
+
+
         return None
 
 
@@ -397,8 +454,8 @@ class Game:
         board_info = self.board_snapshot()
         # get board info 
 
-        self.board[orgn_field_tup].check_move_rng(board_info)
-        # pass it to the check_move_rng() method
+        self.board[orgn_field_tup].validate_move(board_info, trgt_field_tup)
+        # use a validate_move to check if movei is possible 
 
         # do the move:
         self.board[trgt_field_tup] = self.board[orgn_field_tup]
@@ -473,5 +530,5 @@ if __name__ == "__main__":
     g1 = Game()
     g1.display_board()
 
-    g1.move('1a>5d')
-    g1.move('5d>6d')
+    g1.move('1a>5a')
+    g1.move('5a>1a')
