@@ -43,12 +43,15 @@ Once the core chess engine is completed, we can explore adding the following fea
 
 5. **Frontend**:
    - Implement a **JavaScript frontend** for a web-based interface to play the game.
-
-6. **Customization**:
+     
+6. **Dektop version**:
+   - Implement a **Tkinter** GUI desktop application.
+     
+7. **Customization**:
    - Allow users to add their own **custom chess skins**.
 
-7. **Video Streaming**:
+8. **Video Streaming**:
    - Implement **video streaming** using the **UDP protocol** for live game broadcasts.
 
-8. **AI Development**:
-   - Implement an AI component, potentially attempting to replicate something akin to **Deep Blue** using **unsupervised learning** techniques.
+9. **AI Development**:
+   - Sprinkle some AI magic.
