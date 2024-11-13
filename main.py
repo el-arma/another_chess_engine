@@ -183,10 +183,10 @@ class Tower(Piece):
 
         super().__init__(color, field_tup)
         
-        self.piece_type: Piece_Col = Piece_Type.TOWER.value
+        self.piece_type: Piece_Type = Piece_Type.TOWER.value
         self.icon: Piece_Icon = self.all_icons_dict[(self.color, self.piece_type)]
 
-    #TODO: IN PROGRESS
+    # TODO: IN PROGRESS
     def validate_move(self, board_snap: np.array, target_field: Tuple[int, int]) -> list:
         """Check if a given move is possbile:
             -is king in in-check state (this rather be in a game class?)
@@ -206,24 +206,39 @@ class Tower(Piece):
         trg_fld_row: int = target_field[0]
         org_fld_row: int = self.field_tup[0]
 
-
+        # TODO: IN PROGRESS FURTHER TESTING IS REQURIRED
         if org_fld_col == trg_fld_col:
             # target field is in the same column (vertical)
 
             print(board_snap)
-            tuple_ = (org_fld_row, trg_fld_row)  
-            my_sorted_tup = tuple(sorted(tuple_))  
-            print('Sorted Tuple :', my_sorted_tup)  
+            print("MY_RES:")
 
+            if org_fld_row > trg_fld_row:
+                
+                rng_of_attack: np.array =  board_snap[trg_fld_row : org_fld_row, trg_fld_col]
+                print('var: I- down -> up ', rng_of_attack)
 
-            print(board_snap[my_sorted_tup[0] : my_sorted_tup[1], 0])
+            else:
 
-            print("HERE!!!")
-            # move_vector = target_field[0] - self.field_tup[0]
+                rng_of_attack: np.array =  board_snap[org_fld_row + 1 : trg_fld_row + 1, trg_fld_col]
+                print('var: II - up -> down ', rng_of_attack)
+                # add shift to exclude the field upon the tower is standing
 
-            # print(board_snap[:  target_field[0] : self.field_tup[0]])
+            if all(rng_of_attack == ''):
+                print('the range is empty you can do the move')
 
+            elif all(rng_of_attack[ : -1] == '') and (rng_of_attack[-1][1] != self.color):
+                # fields from first to the befor last one are empty and
+                # at the end of the range of attack is a piece that have a different color then yours 
+                print('kill the enemy piece')
+
+            else:
+                print("you can not do the move!")
+
+        # TODO replicate the same logi as above for horizontal move
         elif org_fld_row == trg_fld_row:
+
+        
             print("Ahoy!")
             # target field is in the same row (horizontal)
 
@@ -233,18 +248,8 @@ class Tower(Piece):
             raise Exception('Wrong field coordinates try again.')
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+##################################################################################################################################
+# SECTION TO BE DELETED:
 
         # print(self.field_tup)
 
@@ -268,7 +273,7 @@ class Tower(Piece):
         # print(moves_rng)
         # print()
         # print(board_snap)
-
+##################################################################################################################################
 
         return None
 
@@ -432,7 +437,7 @@ class Game:
         # I. approach:
 
 
-
+        print(move_intr)
 
         orgn_field_str, trgt_field_str = move_intr.split('>')
         # split for two addresses
