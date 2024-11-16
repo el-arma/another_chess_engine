@@ -537,5 +537,4 @@ if __name__ == "__main__":
 
     g1.move('1a>5a')
     g1.move('5a>1a')
-    
-    print("Something new")
+
