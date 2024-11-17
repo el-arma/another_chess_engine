@@ -112,6 +112,10 @@ class Piece:
 
         self.field_tup = field_tup
     
+    def validate_move(self, board_snap: np.array, target_field: Tuple[int, int]) -> bool:
+        """ for the time beeing always return True to prevent errors on the piece that don't have this method rdy """
+        return True
+
     def possible_moves(self):
         pass
 
@@ -147,7 +151,10 @@ class Pawn(Piece):
         self.icon = self.all_icons_dict[(self.color, self.piece_type)]
         # asign icon to the pawn base on the color
 
-
+    def validate_move(self, board_snap: np.array, target_field: Tuple[int, int]) -> bool:
+        """ for the time beeing always return True to prevent errors on the piece that don't have this method rdy """
+        return True
+    
 
     def check_move(self, orgn_field_tup: Tuple[int, int], 
                        trgt_field_tup: Tuple[int, int]) -> bool:
@@ -157,9 +164,6 @@ class Pawn(Piece):
             board_snapshot provide simplify information what is the situation on the board 
             (later optionaly check all possible moves for that piece)"""
         
-        is_possible = None
-
-        return is_possible
 
 class Knight(Piece):
 
@@ -170,6 +174,10 @@ class Knight(Piece):
         self.piece_type = Piece_Type.KNIGHT.value
         self.icon = self.all_icons_dict[(self.color, self.piece_type)]
 
+    def validate_move(self, board_snap: np.array, target_field: Tuple[int, int]) -> bool:
+        """ for the time beeing always return True to prevent errors on the piece that don't have this method rdy """
+        return True
+
 class Bishop(Piece):
     def __init__(self, color: Piece_Col, field_tup: tuple):
 
@@ -177,6 +185,10 @@ class Bishop(Piece):
         
         self.piece_type = Piece_Type.BISHOP.value
         self.icon = self.all_icons_dict[(self.color, self.piece_type)]
+
+    def validate_move(self, board_snap: np.array, target_field: Tuple[int, int]) -> bool:
+        """ for the time beeing always return True to prevent errors on the piece that don't have this method rdy """
+        return True
 
 class Tower(Piece):
     def __init__(self, color: Piece_Col, field_tup: Tuple[int, int]):
@@ -186,19 +198,15 @@ class Tower(Piece):
         self.piece_type: Piece_Type = Piece_Type.TOWER.value
         self.icon: Piece_Icon = self.all_icons_dict[(self.color, self.piece_type)]
 
-    # TODO: IN PROGRESS
-    def validate_move(self, board_snap: np.array, target_field: Tuple[int, int]) -> list:
+    # TODO: Validation rdy, but complex testing of the move and potential factorisation is required
+    def validate_move(self, board_snap: np.array, target_field: Tuple[int, int]) -> bool:
         """Check if a given move is possbile:
             -is king in in-check state (this rather be in a game class?)
             -is it in a range of a given piece
             -will it create a in-check state (this rather be in a game class?)
         """
-        
-        # print(f'{board_snap}')
-        # print()
-        # print(f'{target_field=}')
-        # print()
-        # print(f'{self.field_tup=}')
+        if target_field == self.field_tup:
+            raise Exception("You have pointed the same target field as the origin!")
 
         trg_fld_col: int = target_field[1]
         org_fld_col: int = self.field_tup[1]
@@ -206,17 +214,22 @@ class Tower(Piece):
         trg_fld_row: int = target_field[0]
         org_fld_row: int = self.field_tup[0]
 
-        # TODO: IN PROGRESS FURTHER TESTING IS REQURIRED
         if org_fld_col == trg_fld_col:
             # target field is in the same column (vertical)
 
             print(board_snap)
-            print("MY_RES:")
 
             if org_fld_row > trg_fld_row:
+                # move from down to up
                 
-                rng_of_attack: np.array =  board_snap[trg_fld_row : org_fld_row, trg_fld_col]
-                print('var: I- down -> up ', rng_of_attack)
+                rng_of_attack: np.array = board_snap[trg_fld_row : org_fld_row, trg_fld_col]
+                # create an array with potential move/attack space
+
+                rng_of_attack = np.flip(rng_of_attack)
+                # we HAVE TO filp the range of attack segment so that potential piece 
+                # to be eliminated was always the last element in the array
+
+                print('var: I,  down -> up ', rng_of_attack)
 
             else:
 
@@ -224,58 +237,42 @@ class Tower(Piece):
                 print('var: II - up -> down ', rng_of_attack)
                 # add shift to exclude the field upon the tower is standing
 
-            if all(rng_of_attack == ''):
-                print('the range is empty you can do the move')
+        elif org_fld_row == trg_fld_row:
+                
+            if org_fld_col > trg_fld_col:
+            # move from down to up
 
-            elif all(rng_of_attack[ : -1] == '') and (rng_of_attack[-1][1] != self.color):
-                # fields from first to the befor last one are empty and
-                # at the end of the range of attack is a piece that have a different color then yours 
-                print('kill the enemy piece')
+                rng_of_attack: np.array = board_snap[trg_fld_row, trg_fld_col : org_fld_col]
+                # create an array with potential move/attack space
+
+                rng_of_attack = np.flip(rng_of_attack)
+                # we HAVE TO filp the range of attack segment so that potential piece 
+                # to be eliminated was always the last element in the array
+
+                print('var: III,  right -> left ', rng_of_attack)
 
             else:
-                print("you can not do the move!")
+                rng_of_attack: np.array =  board_snap[trg_fld_row, org_fld_col + 1 : trg_fld_col + 1]
+                print('var: IV - left -> right ', rng_of_attack)
+                # add shift to exclude the field upon the tower is standing
 
-        # TODO replicate the same logi as above for horizontal move
-        elif org_fld_row == trg_fld_row:
-
-        
-            print("Ahoy!")
-            # target field is in the same row (horizontal)
-
-            # print(target_field[1], self.field_tup[1])
-            # print("HERE: ", target_field[1] - self.field_tup[1])
         else:
             raise Exception('Wrong field coordinates try again.')
-
-
-##################################################################################################################################
-# SECTION TO BE DELETED:
-
-        # print(self.field_tup)
-
-        # moves_rng: list = []
-
-        # row_int: int = self.field_tup[0]
-        # col_int: int = self.field_tup[1]
         
+        if all(rng_of_attack == ''):
+            print('the range is empty you can DO the move')
+            return True
 
-        # # vertical:
-        # for j in range(8):
-        #     if j != row_int:
-        #         moves_rng.append((j, col_int))
+        elif all(rng_of_attack[ : -1] == '') and (rng_of_attack[-1][1] != self.color):
+            # fields from first to the before last one are empty and
+            # at the end of the range of attack is a piece that have a different color then yours 
+            print('kill the enemy piece')
+            return True
 
-        # # horizontal:
-        # for j in range(8):
-        #     if j != col_int:
-        #         moves_rng.append((row_int, j))
+        else:
+            Exception('This piece can not do that move')
 
-        
-        # print(moves_rng)
-        # print()
-        # print(board_snap)
-##################################################################################################################################
-
-        return None
+        return False
 
 
 class Queen(Piece):
@@ -286,15 +283,23 @@ class Queen(Piece):
         
         self.piece_type = Piece_Type.QUEEN.value
         self.icon = self.all_icons_dict[(self.color, self.piece_type)]
-
+    
+    def validate_move(self, board_snap: np.array, target_field: Tuple[int, int]) -> bool:
+        """ for the time beeing always return True to prevent errors on the piece that don't have this method rdy """
+        return True
+    
 class King(Queen):
-    # copy moves from Queen but limit it by one
+    # inherents moves from Queen, buy limit it by one
     def __init__(self, color: Piece_Col, field_tup: tuple):
 
         super().__init__(color, field_tup)
         
         self.piece_type = Piece_Type.KING.value
         self.icon = self.all_icons_dict[(self.color, self.piece_type)]
+    
+    def validate_move(self, board_snap: np.array, target_field: Tuple[int, int]) -> bool:
+        """ for the time beeing always return True to prevent errors on the piece that don't have this method rdy """
+        return True
 
 ################################################################################################
 # GAME:
@@ -333,83 +338,59 @@ class Game:
 # Should we extract new class Board from from Game class?
 
 
-    def __init__(self) -> None:
+    def __init__(self, test_mode = False) -> None:
         
         self.p1: Player = Player()
         self.p2: Player = Player()
+        self.test_mode = test_mode
 
-        # CREATE EMPTY CHESS BOARD:
-        self.white_tile = Board_tile(True)
-        self.black_tile = Board_tile(False)
-
-
-
-
-        # Perhapse this part can be refactorized:
-        #################################################################################
-        # in a similar fashion: (if (orgn_field_tup[0] + orgn_field_tup[1]) % 2 == 0:)
-        # or:
-        # ??? grid = np.empty((8, 8), dtype='<U1') ???
-        # ??? grid[:] = np.where((np.indices(grid.shape).sum(axis=0) % 2 == 0), 'W', 'B') ???
-        #################################################################################
-
-        # start with all tiles white
-        self.board = np.full((8, 8), self.white_tile, dtype = 'O')
-
-        # add black tiles p.1
-        self.board[::2, 1::2] = self.black_tile  
-        # Setting alternate rows starting from the first row with alternate columns to 
-
-        # add black tiles p.2
-        self.board[1::2, ::2] = self.black_tile
-        # Setting alternate rows starting from the second row with alternate columns to 1
-
-
-        ######################################################################################################################################
         # PLACE PIECES ON THE BOARD:
 
+        self.board = self.create_empty_board()
+
         # for each field:
-        for i in range(64):
-            
-            if i < 32:
-                chosen_color = Piece_Col.BLACK.value
-                # start with black pieces (from the top of the board)
-            else:    
-                chosen_color = Piece_Col.WHITE.value
-                # white for all other
+        if not test_mode:
+            for i in range(64):
+                
+                if i < 32:
+                    chosen_color = Piece_Col.BLACK.value
+                    # start with black pieces (from the top of the board)
+                else:    
+                    chosen_color = Piece_Col.WHITE.value
+                    # white for all other
 
-            x = i // 8
-            # floor division converts counter to a specific row number
-            
-            y = i % 8
-            # modulo converts counter to a specific column number
+                x = i // 8
+                # floor division converts counter to a specific row number
+                
+                y = i % 8
+                # modulo converts counter to a specific column number
 
-            cord_tup = (x, y)
-            # return proper numpy coordinates
+                cord_tup = (x, y)
+                # return proper numpy coordinates
 
-            # place pawns:
-            if i in range(8, 16) or i in range(48, 56):
-                self.board[cord_tup] = Pawn(color = chosen_color, field_tup = cord_tup)
-            
-            # place towers:
-            if i in (0, 7, 56, 63):
-                self.board[cord_tup] = Tower(color = chosen_color, field_tup = cord_tup)
-            
-            # place knights:
-            if i in (1, 6, 57, 62):
-                self.board[cord_tup] = Knight(color = chosen_color, field_tup = cord_tup)
-            
-            # place bishops:
-            if i in (2, 5, 58, 61):
-                self.board[cord_tup] = Bishop(color = chosen_color, field_tup = cord_tup)
-            
-            # place queens:
-            if i in (3, 59):
-                self.board[cord_tup] = Queen(color = chosen_color, field_tup = cord_tup)
-            
-            # place kings:    
-            if i in (4, 60):
-                self.board[cord_tup] = King(color = chosen_color, field_tup = cord_tup)
+                # place pawns:
+                if i in range(8, 16) or i in range(48, 56):
+                    self.board[cord_tup] = Pawn(color = chosen_color, field_tup = cord_tup)
+                
+                # place towers:
+                if i in (0, 7, 56, 63):
+                    self.board[cord_tup] = Tower(color = chosen_color, field_tup = cord_tup)
+                
+                # place knights:
+                if i in (1, 6, 57, 62):
+                    self.board[cord_tup] = Knight(color = chosen_color, field_tup = cord_tup)
+                
+                # place bishops:
+                if i in (2, 5, 58, 61):
+                    self.board[cord_tup] = Bishop(color = chosen_color, field_tup = cord_tup)
+                
+                # place queens:
+                if i in (3, 59):
+                    self.board[cord_tup] = Queen(color = chosen_color, field_tup = cord_tup)
+                
+                # place kings:    
+                if i in (4, 60):
+                    self.board[cord_tup] = King(color = chosen_color, field_tup = cord_tup)
 
 
 ######################################################################################################################################
@@ -451,16 +432,17 @@ class Game:
 
         if isinstance(self.board[orgn_field_tup], Piece):
             # check if what you have pointed is not an empty field (belongs to the Piece class)
-            print("Do the code")
+
+            board_info = self.board_snapshot()
+            # get board info 
+
+            if not self.board[orgn_field_tup].validate_move(board_info, trgt_field_tup):
+                # use a validate_move to check if move is possible 
+                raise Exception("Something went horribly wrong, case out of scope!")
+            
         else:
             raise Exception("You have pointed an empty field as a start!")
             # player has pointed an empty field as a starting point of a move
-
-        board_info = self.board_snapshot()
-        # get board info 
-
-        self.board[orgn_field_tup].validate_move(board_info, trgt_field_tup)
-        # use a validate_move to check if movei is possible 
 
         # do the move:
         self.board[trgt_field_tup] = self.board[orgn_field_tup]
@@ -484,6 +466,32 @@ class Game:
 
         return None
 
+    def create_empty_board(self) -> np.array:
+        # CREATE EMPTY CHESS BOARD:
+        self.white_tile = Board_tile(True)
+        self.black_tile = Board_tile(False)
+
+
+        # Perhapse this part can be refactorized:
+        #################################################################################
+        # in a similar fashion: (if (orgn_field_tup[0] + orgn_field_tup[1]) % 2 == 0:)
+        # or:
+        # ??? grid = np.empty((8, 8), dtype='<U1') ???
+        # ??? grid[:] = np.where((np.indices(grid.shape).sum(axis=0) % 2 == 0), 'W', 'B') ???
+        #################################################################################
+
+        # start with all tiles white
+        empty_board = np.full((8, 8), self.white_tile, dtype = 'O')
+
+        # add black tiles p.1
+        empty_board[::2, 1::2] = self.black_tile  
+        # Setting alternate rows starting from the first row with alternate columns to 
+
+        # add black tiles p.2
+        empty_board[1::2, ::2] = self.black_tile
+        # Setting alternate rows starting from the second row with alternate columns to 1
+
+        return empty_board
 
     def display_board(self, reverse: bool = False) -> None:
         # reverse to be impletemnte later (to reverse board for the second player)
@@ -532,9 +540,28 @@ class Game:
 #######################################################################################################################
 if __name__ == "__main__":
 
+    # # scen for TESTS:
+    # g1 = Game(test_mode = True)
+    # # create a game with empty board
+
+    # trgt_fld_1 = (2, 4)
+    # trgt_fld_2 = (2, 0)
+    # trgt_fld_3 = (7, 4)
+
+    # g1.board[trgt_fld_1] = Tower(color = Piece_Col.BLACK.value, field_tup = trgt_fld_1)
+
+    # g1.board[trgt_fld_2] = Pawn(color = Piece_Col.WHITE.value, field_tup = trgt_fld_2)
+    # g1.board[trgt_fld_3] = Queen(color = Piece_Col.BLACK.value, field_tup = trgt_fld_3)
+
+    # g1.display_board()
+    # g1.move('6e>6a')
+
     g1 = Game()
     g1.display_board()
-
-    g1.move('1a>5a')
-    g1.move('5a>1a')
-
+    g1.move('2e>3e')
+    g1.move('7a>5a')
+    g1.move('8a>6a')
+    g1.move('6a>6h')
+    g1.move('6h>3h')
+    g1.move('3h>2h')
+    g1.move('2h>1h')
