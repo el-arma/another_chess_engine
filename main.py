@@ -257,20 +257,23 @@ class Tower(Piece):
                 # add shift to exclude the field upon the tower is standing
 
         else:
+            print('Move corect: False')
             raise Exception('Wrong field coordinates try again.')
         
         if all(rng_of_attack == ''):
-            print('the range is empty you can DO the move')
+            print('Move corect: True')
             return True
 
         elif all(rng_of_attack[ : -1] == '') and (rng_of_attack[-1][1] != self.color):
             # fields from first to the before last one are empty and
             # at the end of the range of attack is a piece that have a different color then yours 
-            print('kill the enemy piece')
+            print('Move corect: True')
+            print('Kill the enemy piece.')
             return True
 
         else:
-            Exception('This piece can not do that move')
+            print('Move corect: False')
+            raise Exception('This piece can not do that move')
 
         return False
 
@@ -314,11 +317,6 @@ class Player:
 
         self.player_name = player_name
 
-        Player.inst_cnt += 1
-        
-        if Player.inst_cnt > 2:
-            raise Exception("You can't have more then two Players!")
-
         if self.player_name is None:
             # if a player dont want a name or during unit tests
 
@@ -335,8 +333,6 @@ class Spectator:
     pass
 
 class Game:
-# Should we extract new class Board from from Game class?
-
 
     def __init__(self, test_mode = False) -> None:
         
@@ -462,7 +458,12 @@ class Game:
         else:
             self.board[orgn_field_tup] = self.black_tile
             # replace a given piece back with the original tile (black)
-        self.reverse = not self.reverse
+        
+        ################################################################
+        # # flag disabled for now, TO BE ACTIVATED IN FURHETR STAGES
+        # self.reverse = not self.reverse
+        ################################################################
+
         self.display_board(self.reverse)
 
         return None
@@ -549,10 +550,10 @@ class Game:
 #######################################################################################################################
 if __name__ == "__main__":
 
-    # # scen for TESTS:
-    # g1 = Game(test_mode = True)
-    # # create a game with empty board
-
+    # scen. for TESTS:
+    g1 = Game(test_mode = True)
+    # create a game with empty board
+    g1.display_board()
     # trgt_fld_1 = (2, 4)
     # trgt_fld_2 = (2, 0)
     # trgt_fld_3 = (7, 4)
@@ -565,12 +566,12 @@ if __name__ == "__main__":
     # g1.display_board()
     # g1.move('6e>6a')
 
-    g1 = Game()
-    g1.display_board()
-    g1.move('2e>3e')
-    g1.move('7a>5a')
-    g1.move('8a>6a')
-    g1.move('6a>6h')
-    g1.move('6h>3h')
-    g1.move('3h>2h')
-    g1.move('2h>1h')
+    # g1 = Game()
+    # g1.display_board()
+    # g1.move('2e>3e')
+    # g1.move('7a>5a')
+    # g1.move('8a>6a')
+    # g1.move('6a>6h')
+    # g1.move('6h>3h')
+    # g1.move('3h>2h')
+    # g1.move('2h>1h')
