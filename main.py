@@ -343,6 +343,7 @@ class Game:
         self.p1: Player = Player()
         self.p2: Player = Player()
         self.test_mode = test_mode
+        self.reverse = False        #Boolean variable to allow for orientation change after every move
 
         # PLACE PIECES ON THE BOARD:
 
@@ -461,8 +462,8 @@ class Game:
         else:
             self.board[orgn_field_tup] = self.black_tile
             # replace a given piece back with the original tile (black)
-
-        self.display_board()
+        self.reverse = not self.reverse
+        self.display_board(self.reverse)
 
         return None
 
@@ -494,15 +495,23 @@ class Game:
         return empty_board
 
     def display_board(self, reverse: bool = False) -> None:
-        # reverse to be impletemnte later (to reverse board for the second player)
 
         print('\n' + ' ' * 6 + '-' * 30)
+        # Printing upper border of the chess board
+        if(not reverse):
+            #Display board in normal orientation
+            for idx, row in enumerate(self.board):
+                print(8 - idx, ' ' , row)
+        else:
+            #Display chess board in reversed view
+            for idx, row in enumerate(reversed(self.board)):
+                print(1 + idx, ' ', list(reversed(row)))
+                #Wrap the reversed iterator of row in temporary list to allow proper display
 
-        for idx, row in enumerate(self.board):
-            print(8 - idx, ' ' , row)
 
         print(' ' * 6 + '-' * 30)
-        print(' ' * 6 + 'a   b   c   d   e   f   g   h \n')
+        print(' ' * 6, 'a   b   c   d   e   f   g   h \n' if not reverse else 'h   g   f   e   d   c   b   a \n')
+        #Print column letters in different order based on current orientation
 
         return None
 
