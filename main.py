@@ -215,9 +215,7 @@ class Tower(Piece):
         org_fld_row: int = self.field_tup[0]
 
         if org_fld_col == trg_fld_col:
-            # target field is in the same column (vertical)
-
-            print(board_snap)
+        # target field is in the same column (vertical)
 
             if org_fld_row > trg_fld_row:
                 # move from down to up
@@ -229,16 +227,13 @@ class Tower(Piece):
                 # we HAVE TO filp the range of attack segment so that potential piece 
                 # to be eliminated was always the last element in the array
 
-                print('var: I,  down -> up ', rng_of_attack)
-
             else:
 
                 rng_of_attack: np.array =  board_snap[org_fld_row + 1 : trg_fld_row + 1, trg_fld_col]
-                print('var: II - up -> down ', rng_of_attack)
-                # add shift to exclude the field upon the tower is standing
 
         elif org_fld_row == trg_fld_row:
-                
+        # target field is in the same row (horizontal)
+
             if org_fld_col > trg_fld_col:
             # move from down to up
 
@@ -249,30 +244,21 @@ class Tower(Piece):
                 # we HAVE TO filp the range of attack segment so that potential piece 
                 # to be eliminated was always the last element in the array
 
-                print('var: III,  right -> left ', rng_of_attack)
-
             else:
-                rng_of_attack: np.array =  board_snap[trg_fld_row, org_fld_col + 1 : trg_fld_col + 1]
-                print('var: IV - left -> right ', rng_of_attack)
-                # add shift to exclude the field upon the tower is standing
+                rng_of_attack: np.array = board_snap[trg_fld_row, org_fld_col + 1 : trg_fld_col + 1]
 
         else:
-            print('Move corect: False')
             raise Exception('Wrong field coordinates try again.')
         
         if all(rng_of_attack == ''):
-            print('Move corect: True')
             return True
 
         elif all(rng_of_attack[ : -1] == '') and (rng_of_attack[-1][1] != self.color):
             # fields from first to the before last one are empty and
             # at the end of the range of attack is a piece that have a different color then yours 
-            print('Move corect: True')
-            print('Kill the enemy piece.')
             return True
 
         else:
-            print('Move corect: False')
             raise Exception('This piece can not do that move')
 
         return False
@@ -553,25 +539,5 @@ if __name__ == "__main__":
     # scen. for TESTS:
     g1 = Game(test_mode = True)
     # create a game with empty board
-    g1.display_board()
-    # trgt_fld_1 = (2, 4)
-    # trgt_fld_2 = (2, 0)
-    # trgt_fld_3 = (7, 4)
 
-    # g1.board[trgt_fld_1] = Tower(color = Piece_Col.BLACK.value, field_tup = trgt_fld_1)
 
-    # g1.board[trgt_fld_2] = Pawn(color = Piece_Col.WHITE.value, field_tup = trgt_fld_2)
-    # g1.board[trgt_fld_3] = Queen(color = Piece_Col.BLACK.value, field_tup = trgt_fld_3)
-
-    # g1.display_board()
-    # g1.move('6e>6a')
-
-    # g1 = Game()
-    # g1.display_board()
-    # g1.move('2e>3e')
-    # g1.move('7a>5a')
-    # g1.move('8a>6a')
-    # g1.move('6a>6h')
-    # g1.move('6h>3h')
-    # g1.move('3h>2h')
-    # g1.move('2h>1h')
