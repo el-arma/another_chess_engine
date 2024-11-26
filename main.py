@@ -178,9 +178,6 @@ class Knight(Piece):
         """Check if a given move is possbile - is it in a range of a given piece:
             -moves only in in a shape of letter 'L' - e.g. 3 up 2 right
         """
-
-        if target_field == self.field_tup:
-            raise Exception("You have pointed the same target field as the origin!")
         
         trg_fld_col: int = target_field[1]
         org_fld_col: int = self.field_tup[1]
@@ -228,9 +225,6 @@ class Tower(Piece):
 
     def validate_move(self, board_snap: np.array, target_field: Tuple[int, int]) -> bool:
         """Check if a given move is possbile - is it in a range of a given piece"""
-
-        if target_field == self.field_tup:
-            raise Exception("You have pointed the same target field as the origin!")
 
         trg_fld_col: int = target_field[1]
         org_fld_col: int = self.field_tup[1]
@@ -442,9 +436,9 @@ class Game:
             # third is '>' sing
             move_intr[:2] != move_intr[3:] and
             # pointed fields are different
-            len(move_intr) == 5
+            len(move_intr) == 5):
             # instruction length should not be exactly 5 characters
-            ):
+            
             raise Exception('Wrong move instruction!')
 
 
@@ -587,7 +581,6 @@ class Game:
 if __name__ == "__main__":
 
     g1 = Game()
-    # create a game with empty board
     g1.display_board()
     g1.move('1b>3c')
     g1.move('3c>5d')
