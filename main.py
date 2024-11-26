@@ -175,8 +175,36 @@ class Knight(Piece):
         self.icon = self.all_icons_dict[(self.color, self.piece_type)]
 
     def validate_move(self, board_snap: np.array, target_field: Tuple[int, int]) -> bool:
-        """ for the time beeing always return True to prevent errors on the piece that don't have this method rdy """
-        return True
+        """Check if a given move is possbile - is it in a range of a given piece:
+            -moves only in in a shape of letter 'L' - e.g. 3 up 2 right
+        """
+
+        if target_field == self.field_tup:
+            raise Exception("You have pointed the same target field as the origin!")
+        
+        trg_fld_col: int = target_field[1]
+        org_fld_col: int = self.field_tup[1]
+
+        trg_fld_row: int = target_field[0]
+        org_fld_row: int = self.field_tup[0]
+
+        vec: tuple[int] = abs(trg_fld_row - org_fld_row), abs(trg_fld_col - org_fld_col)
+
+        if vec == (2, 1) or vec == (1, 2):
+            # if you have jump in a shape of L 
+
+            if board_snap[target_field] == '':
+            # the target field is empty
+                return True
+
+            elif board_snap[target_field][1] != self.color:
+            # or there is an enemy piece
+                return True
+
+        raise Exception('This piece can not do that move')
+    
+        return False
+
 
 class Bishop(Piece):
     def __init__(self, color: Piece_Col, field_tup: tuple):
@@ -198,13 +226,9 @@ class Tower(Piece):
         self.piece_type: Piece_Type = Piece_Type.TOWER.value
         self.icon: Piece_Icon = self.all_icons_dict[(self.color, self.piece_type)]
 
-    # TODO: Validation rdy, but complex testing of the move and potential factorisation is required
     def validate_move(self, board_snap: np.array, target_field: Tuple[int, int]) -> bool:
-        """Check if a given move is possbile:
-            -is king in in-check state (this rather be in a game class?)
-            -is it in a range of a given piece
-            -will it create a in-check state (this rather be in a game class?)
-        """
+        """Check if a given move is possbile - is it in a range of a given piece"""
+
         if target_field == self.field_tup:
             raise Exception("You have pointed the same target field as the origin!")
 
@@ -326,7 +350,9 @@ class Game:
         self.p2: Player = Player()
         self.test_mode = test_mode
         self.reverse = False        #Boolean variable to allow for orientation change after every move
-
+        self.LETTERS_a_h: list[str] = [chr(i + 97) for i in range(8)]
+        # letter a-h
+        
         # PLACE PIECES ON THE BOARD:
 
         self.board = self.create_empty_board()
@@ -403,6 +429,25 @@ class Game:
 
         print(move_intr)
 
+        # check if the move instruction is correct
+        if not (int(move_intr[0]) in range(1, 9) and
+            # first char is int 1-8
+            int(move_intr[3]) in range(1, 9) and
+            # fourht char is int 1-8
+            move_intr[1] in self.LETTERS_a_h and
+            # second is a letter
+            move_intr[4] in self.LETTERS_a_h and
+            # fifth is a letter
+            move_intr[2] == '>' and
+            # third is '>' sing
+            move_intr[:2] != move_intr[3:] and
+            # pointed fields are different
+            len(move_intr) == 5
+            # instruction length should not be exactly 5 characters
+            ):
+            raise Exception('Wrong move instruction!')
+
+
         orgn_field_str, trgt_field_str = move_intr.split('>')
         # split for two addresses
         # pehapse overload of '__gt__' dunder method could be applied (later)
@@ -417,7 +462,7 @@ class Game:
             # check if what you have pointed is not an empty field (belongs to the Piece class)
 
             board_info = self.board_snapshot()
-            # get board info 
+            # generate board info 
 
             if not self.board[orgn_field_tup].validate_move(board_info, trgt_field_tup):
                 # use a validate_move to check if move is possible 
@@ -486,19 +531,24 @@ class Game:
         print('\n' + ' ' * 6 + '-' * 30)
         # Printing upper border of the chess board
         if(not reverse):
-            #Display board in normal orientation
+            # Display board in normal orientation
             for idx, row in enumerate(self.board):
                 print(8 - idx, ' ' , row)
         else:
-            #Display chess board in reversed view
+            # Display chess board in reversed view
             for idx, row in enumerate(reversed(self.board)):
                 print(1 + idx, ' ', list(reversed(row)))
                 #Wrap the reversed iterator of row in temporary list to allow proper display
 
 
         print(' ' * 6 + '-' * 30)
-        print(' ' * 6, 'a   b   c   d   e   f   g   h \n' if not reverse else 'h   g   f   e   d   c   b   a \n')
-        #Print column letters in different order based on current orientation
+        
+        # Print column letters in different order based on the current orientation:
+        if reverse:
+            print(' ' * 6, '   '.join(self.LETTERS_a_h[::-1]), '\n')
+        else:
+            print(' ' * 6, '   '.join(self.LETTERS_a_h), '\n')
+        
 
         return None
 
@@ -536,8 +586,11 @@ class Game:
 #######################################################################################################################
 if __name__ == "__main__":
 
-    # scen. for TESTS:
-    g1 = Game(test_mode = True)
+    g1 = Game()
     # create a game with empty board
-
-
+    g1.display_board()
+    g1.move('1b>3c')
+    g1.move('3c>5d')
+    g1.move('5d>7c')
+    g1.move('7c>8a')
+    g1.move('8a>6b')
