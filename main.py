@@ -210,10 +210,65 @@ class Bishop(Piece):
         
         self.piece_type = Piece_Type.BISHOP.value
         self.icon = self.all_icons_dict[(self.color, self.piece_type)]
-
+    
+    # TODO:
     def validate_move(self, board_snap: np.array, target_field: Tuple[int, int]) -> bool:
         """ for the time beeing always return True to prevent errors on the piece that don't have this method rdy """
-        return True
+        
+        # columns:
+        trg_fld_col: int = target_field[1]
+        # of target field
+        org_fld_col: int = self.field_tup[1]
+        # of origin field
+
+        # rows:
+        trg_fld_row: int = target_field[0]
+        # of target field
+        org_fld_row: int = self.field_tup[0]
+        # of origin field
+
+        move_vector: tuple = (target_field[0] - self.field_tup[0], target_field[1] - self.field_tup[1])
+        # declare the move vector
+
+        if move_vector[0] == move_vector[1]:
+            # same signs (+, +)/(-, -) - normal diagonal
+
+            res_trgt: int = target_field[1] - target_field[0]
+            res_org = self.field_tup[1] - self.field_tup[0]
+
+            diago = board_snap.diagonal(res_trgt)
+
+        elif move_vector[0] == -move_vector[1]:
+            # mixed signs (+, -)/(+, -) - reversed diagonal
+
+            res_trgt = (7 - target_field[0] - target_field[1])
+            res_org = self.field_tup[1] - self.field_tup[0]
+
+            diago = np.fliplr(board_snap).diagonal(res_trgt)
+
+
+        if target_field[0] > self.field_tup[0]:
+        # going downward
+
+            rng_of_atack = diago[self.field_tup[0] + 1: target_field[0] + 1]
+
+        else:
+        # going upward
+
+            rng_of_atack = diago[target_field[0] : self.field_tup[0]]
+
+        if all(rng_of_atack == ''):
+            return True
+
+        elif all(rng_of_atack[ : -1] == '') and (rng_of_atack[-1][1] != self.color):
+            # fields from first to the before last one are empty and
+            # at the end of the range of attack is a piece that have a different color then yours 
+            return True
+
+        else:
+            raise Exception('This piece can not do that move')
+        
+        return False
 
 class Tower(Piece):
     def __init__(self, color: Piece_Col, field_tup: Tuple[int, int]):
@@ -580,10 +635,27 @@ class Game:
 #######################################################################################################################
 if __name__ == "__main__":
 
-    g1 = Game()
+    g1 = Game(test_mode = True)
+    
+
+    origin = (4, 4)
+
+    g1.board[origin] = Bishop(color = Piece_Col.BLACK.value, field_tup = origin)
+
     g1.display_board()
-    g1.move('1b>3c')
-    g1.move('3c>5d')
-    g1.move('5d>7c')
-    g1.move('7c>8a')
-    g1.move('8a>6b')
+
+    g1.move('4e>1h')
+    g1.move('1h>4e')
+    
+    origin = (0, 7)
+    g1.board[origin] = Bishop(color = Piece_Col.BLACK.value, field_tup = origin)
+    
+
+    g1.move('8h>1a')
+    g1.move('1a>8h')
+
+    origin = (1, 6)
+    g1.board[origin] = Bishop(color = Piece_Col.WHITE.value, field_tup = origin)
+    g1.display_board()
+
+    g1.move('8h>7g')
