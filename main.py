@@ -227,35 +227,46 @@ class Bishop(Piece):
         org_fld_row: int = self.field_tup[0]
         # of origin field
 
-        move_vector: tuple = (target_field[0] - self.field_tup[0], target_field[1] - self.field_tup[1])
+        move_vector: tuple = (trg_fld_row - org_fld_row, trg_fld_col - org_fld_col)
         # declare the move vector
 
         if move_vector[0] == move_vector[1]:
             # same signs (+, +)/(-, -) - normal diagonal
 
-            res_trgt: int = target_field[1] - target_field[0]
-            res_org = self.field_tup[1] - self.field_tup[0]
+            trgt_diago_pointer: int = trg_fld_col - target_field[0]
+            # indicate the diagonal coordinate for the target field
 
-            diago = board_snap.diagonal(res_trgt)
+            orgn_diago_pointer = org_fld_col - org_fld_row
+            # indicate the diagonal coordinate for the origin field
+
+            diago = board_snap.diagonal(trgt_diago_pointer)
+            check_diago = board_snap.diagonal(orgn_diago_pointer)
 
         elif move_vector[0] == -move_vector[1]:
             # mixed signs (+, -)/(+, -) - reversed diagonal
 
-            res_trgt = (7 - target_field[0] - target_field[1])
-            res_org = self.field_tup[1] - self.field_tup[0]
+            trgt_diago_pointer: int = (7 - trg_fld_row - trg_fld_col)
+            # indicate the reversed diagonal coordinate for the target field
 
-            diago = np.fliplr(board_snap).diagonal(res_trgt)
+            orgn_diago_pointer: int = (7 - org_fld_row - org_fld_col)
+            # indicate the diagonal coordinate for the origin field
 
+            diago = np.fliplr(board_snap).diagonal(trgt_diago_pointer)
+            check_diago = np.fliplr(board_snap).diagonal(orgn_diago_pointer)
 
-        if target_field[0] > self.field_tup[0]:
+        if not (diago == check_diago).all():
+            # the pointed piecec must be on the same diagonal
+            raise Exception('This piece can not do that move')
+
+        if trg_fld_row > org_fld_row:
         # going downward
 
-            rng_of_atack = diago[self.field_tup[0] + 1: target_field[0] + 1]
+            rng_of_atack = diago[org_fld_row + 1: trg_fld_row + 1]
 
         else:
         # going upward
 
-            rng_of_atack = diago[target_field[0] : self.field_tup[0]]
+            rng_of_atack = diago[trg_fld_row : org_fld_row]
 
         if all(rng_of_atack == ''):
             return True
